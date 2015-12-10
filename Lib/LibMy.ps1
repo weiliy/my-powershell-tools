@@ -23,10 +23,13 @@ Function Out-MyLog {
     }
     Process {
         $UtcTime = (Get-Date).ToUniversalTime() | Get-Date -UFormat '%Y-%m-%d %H:%M:%S'
-        $LogMsg =  $UtcTime + ': ' + $_ 
-        $Script:MyLogBuffer += $LogMsg
-
-        Write-Output $LogMsg
+        $messages = '' + ($_ | Out-String)
+        $messages = $messages.Split("`n")
+        foreach ($message in $messages) {
+            $LogMsg =  $UtcTime + ': ' + ($message -replace "`n|`r","" ).TrimEnd()
+            Write-Output $LogMsg
+            $Script:MyLogBuffer += $LogMsg
+        }
     }
     End {
         
