@@ -14,7 +14,8 @@ Function Initialize-MyEnv {
     #>
     Param (
         [string]$MyScript = $(throw "Parameter missing: -MyScript The Script Full Name"),
-        [String]$Lib = 'lib'
+        [String]$Lib = 'lib',
+	[switch]$NotLoadLib
     )
     $Script:MyScriptFullName = $MyScript
     $Script:MyScriptName = Split-Path $MyScriptFullName -Leaf 
