@@ -58,7 +58,11 @@ Process {
         $ALmStep.Expected,
         $AlmStep.Memo,
         $FunctionName,
-        "{ `"$FunctionName`" }"
+        @"
+{
+    "## $FunctionName ##"
+}
+"@
     )
 
     $Return = @{}
@@ -108,17 +112,20 @@ Function Get-AlmSteps {
 }
 
 Function Out-AlmScript {
+param(
+    [string]$Name = 'Script.ps1'
+)
+
 Begin {
-    $ScriptFile = 'Script.ps1'
+
+    $ScriptFile = "Test-" + ($Name | Convert-FunctionName) + ".ps1"
     try {
         @"
 <#
 .SYNOPSIS
-    ALM test case.
+    ALM test case: $Name
 .VERSION
     draft
-.DESCRIPTION
-    ALM test case.
 .NOTE
     Author: $Author
 #>
@@ -144,6 +151,7 @@ End {
 }
 }
 
+$ScriptName = ("Test-" + ((Split-Path -Path $Path -Leaf) -replace '.csv$','' | Convert-FunctionName) + ".PS1")
 Get-AlmSteps -Path $Path `
 | ConvertTo-AlmStepFunction `
-| Out-AlmScript
+| Out-AlmScript -Name ((Split-Path -Path $Path -Leaf) -replace '.csv$','')
