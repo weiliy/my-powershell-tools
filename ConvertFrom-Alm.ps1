@@ -19,7 +19,16 @@ param(
     [string]$Author = $env:USERNAME
 )
 
-$StepFunctonNameTemplate = "Test-Alm{0}"
+## Helper
+
+Function Convert-FunctionName {
+Process {
+    $Return = $_ -replace '[\s!@#$%^&*()_+-=<>/]',''
+    $Return
+}
+}
+
+## Functions
 
 Function ConvertTo-AlmStepFunction {
 Begin {
@@ -37,7 +46,7 @@ Function {4} {5}
 }
 Process {
     $AlmStep = $_
-    $FunctionName = $StepFunctonNameTemplate -f $AlmStep.Name
+    $FunctionName = $StepFunctonNameTemplate -f ($AlmStep.Name | Convert-FunctionName)
     $FunctionStep = $StepTemplate -f (
         $AlmStep.Name,
         $AlmStep.Description,
