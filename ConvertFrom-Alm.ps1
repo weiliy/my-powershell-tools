@@ -23,8 +23,13 @@ param(
 
 Function Convert-FunctionName {
 Process {
-    $Return = $_ -replace '[\s!@#$%^&*()_+-=<>/]',''
-    $Return
+    $Return = ($_ -replace '[,.!@#$%^&*()]| +',' ').Split().Trim() | foreach {
+        if ($_ -ne '') {
+            $_.Substring(0,1).ToUpper() + $_.Substring(1).ToLower()
+        }
+    }
+
+    $Return -join ''
 }
 }
 
@@ -134,7 +139,6 @@ End {
     "" | Add-Content $ScriptFile 
     "# Main " | Add-Content $ScriptFile 
     foreach ( $FunctionName in $FunctionList ) {
-        $FunctionName | Add-Content $ScriptFile
         $FunctionName | Add-Content $ScriptFile
     }
 }
