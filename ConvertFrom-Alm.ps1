@@ -144,10 +144,22 @@ Process {
 }
 End {
     "" | Add-Content $ScriptFile 
-    "# Main " | Add-Content $ScriptFile 
+@'
+# Main
+Function Run-Main {
+    $Script:TestDatas = @{}
+'@ | Add-Content $ScriptFile 
+
     foreach ( $FunctionName in $FunctionList ) {
-        $FunctionName | Add-Content $ScriptFile
+        '    ' + $FunctionName | Add-Content $ScriptFile
     }
+
+@'
+    "Finished!"
+}
+
+Run-Main
+'@ | Add-Content $ScriptFile 
 }
 }
 
