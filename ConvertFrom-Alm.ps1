@@ -60,7 +60,7 @@ Process {
         $FunctionName,
         @"
 {
-    "## $FunctionName ##"
+    "## Test Step: $($AlmStep.Name) ##"
 }
 "@
     )
