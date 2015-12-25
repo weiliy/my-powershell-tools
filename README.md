@@ -14,28 +14,21 @@ A function to print log on the screen and file and have UTC time in every line.
 
 ## Sys Check Lib
 
-### Test-WinSoftwareInstallation
+### Get-WinSoftwareInstallation
 
-Test if install softwares
+Get install softwares
 
 #### Usage
 
 Example:
 
 ``` PowrShell
-$Softwares = @( 
-    @{Name = ".NET Framework 4.5"; Parttern = "^Microsoft .NET Framework 4.5"},
-    @{Name = "Visual C++ 2012 Runtime"; Parttern = "^Microsoft Visual C\+\+ 2013 .* Runtime"}
-)
-$Softwares | Test-WinSoftwareInstallation
-```
+PS > 'calibre','Evernote','ixxx' | Get-WinSoftwareInstallation | Select-Object Name,Version,InstallStatus | Format-Table -AutoSize
 
-Output:
-
-```
-Name                                                                  Installed
-----                                                                  ---------
-.NET Framework 4.5                                                         True
-Visual C++ 2012 Runtime                                                    True
+Name              Version    InstallStatus
+----              -------    -------------
+calibre 64bit     2.47.0     Installed    
+Evernote v. 5.9.6 5.9.6.9494 Installed    
+ixxx                         Not Installed
 ```
 

@@ -1,29 +1,34 @@
 ﻿# System Check Functions
 
-# Test if install softwares
-Function Test-WinSoftwareInstallation {
+# Get install softwares status
+Function Get-WinSoftwareInstallation {
     [CmdletBinding()]
     Param(
         [parameter(Mandatory=$true,
         ValueFromPipeline=$true)]
-        [Hashtable]
-        $SoftwareObj
+        [string]
+        $Partterns
     )
     Begin {
+        Write-Progress "Geting Win32_Product"
         $WmiWin32Product = Get-WmiObject Win32_Product
+        $Softwares = @()
     }
     Process {
-        $Software = New-Object PSObject -Property @{ 
-            Name = $SoftwareObj.Name;
-            Installed= $false;
-            Parttern = $SoftwareObj.Parttern
-        }
-
-        $WmiWin32Product | ForEach-Object {
-            if ( $_.Name -match $Software.Parttern ) {
-                    $Software.Installed = $true
+        foreach ( $Parttern in $Partterns ) {
+            Write-Progress "Checking $Parttern"
+            $Matchs = $WmiWin32Product | Where-Object { $_.Name -match $Parttern } 
+            If ( ($Matchs | Measure-Object -Property Name ).Count -eq 0 ) {
+                $Softwares += New-Object PSObject -Property @{
+                    Name = "$Partterns";
+                    InstallStatus = "Not Installed";
+                }
+            } else {
+                $Softwares += $Matchs | Add-Member NoteProperty InstallStatus 'Installed' -PassThru
             }
         }
-        $Software | Select-Object -Property Name,Installed
+    }
+    End {
+        $Softwares
     }
 }
