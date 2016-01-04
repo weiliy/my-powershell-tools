@@ -48,7 +48,7 @@ Function Get-WinSoftwareInstallation {
             $Matchs = $InstalledSoftwares | Where-Object { $_.Name -like $Name}
             If ( ($Matchs | Measure-Object -Property Name ).Count -eq 0 ) {
                 $Softwares += New-Object PSObject -Property @{
-                    Name = "$Partterns";
+                    Name = "$Name";
                     Version = "n/a";
                     Publisher = "n/a";
                     InstallStatus = "Not Installed"
