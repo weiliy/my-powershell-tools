@@ -31,7 +31,7 @@ Function Get-WinSoftwareStatus {
                     Status = "Not Install"
                 }
             } else {
-                $Softwares += $Matchs | Select-Object Name,Version,Publisher,@{Name="Status";Expression="Installed"}
+                $Softwares += $Matchs | Select-Object Name,Version,Publisher,@{Name="Status";Expression={"Installed"}}
             }
         }
     }
