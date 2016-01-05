@@ -11,14 +11,18 @@ Function Get-WinSoftwareStatus {
     )
     Begin {
         Write-Verbose "Reading registry HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall"
-        $InstalledSoftwares = Get-ItemProperty HKLM:\Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\* `
+        $WmiWin32Product = Get-WmiObject Win32_Product | Select-Object Name,Version,@{Name='Publisher';Expression={$_.Vendor}}
+        $HklmSoftwares = Get-ItemProperty HKLM:\Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\* `
         | Select-Object @{Name="Name"; Expression = {$_.DisplayName}},@{Name="Version";Expression={$_.DisplayVersion}},Publisher
         $Softwares = @()
     }
     Process {
         foreach ( $Name in $Names ) {
             Write-Debug "Checking $Name"
-            $Matchs = $InstalledSoftwares | Where-Object { $_.Name -like $Name}
+            $Matchs = $WmiWin32Product | Where-Object { $_.Name -like $Name}
+            If ( ($Matchs | Measure-Object -Property Name ).Count -eq 0 ) {
+                $Matchs = $HklmSoftwares | Where-Object { $_.Name -like $Name}
+            }
             If ( ($Matchs | Measure-Object -Property Name ).Count -eq 0 ) {
                 $Softwares += New-Object PSObject -Property @{
                     Name = "$Name";
@@ -27,7 +31,7 @@ Function Get-WinSoftwareStatus {
                     Status = "Not Install"
                 }
             } else {
-                $Softwares += $Matchs | Add-Member NoteProperty Status "Installed" -PassThru
+                $Softwares += $Matchs | Select-Object Name,Version,Publisher,@{Name="Status";Expression="Installed"}
             }
         }
     }
