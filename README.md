@@ -14,21 +14,39 @@ A function to print log on the screen and file and have UTC time in every line.
 
 ## Sys Check Lib
 
-### Get-WinSoftwareInstallation
+### Get-WinSoftwareStatus
 
-Get install softwares
+Get install softwares Status
 
 #### Usage
 
 Example:
 
 ``` PowrShell
-PS > 'calibre','Evernote','ixxx' | Get-WinSoftwareInstallation | Select-Object Name,Version,InstallStatus | Format-Table -AutoSize
+PS > 'Evernote*','SomeOther*' | Get-WinSoftwareStatus | ft -AutoSize
 
-Name              Version    InstallStatus
-----              -------    -------------
-calibre 64bit     2.47.0     Installed    
-Evernote v. 5.9.6 5.9.6.9494 Installed    
-ixxx                         Not Installed
+Name              Version    Publisher      Status     
+----              -------    ---------      ------     
+Evernote v. 5.9.6 5.9.6.9494 Evernote Corp. Installed  
+SomeOther*        n/a        n/a            Not Install
 ```
+### Get-WinServiceStatus
 
+Get runing servcie status
+
+#### Usage
+
+Example:
+
+``` PowrShell
+PS > 'Win*','Spo*','SomeOther' | Get-WinServiceStatus | ft -AutoSize
+
+Name                State   StartMode
+----                -----   ---------
+WinDefend           Running Auto     
+WinHttpAutoProxySvc Running Manual   
+Winmgmt             Running Auto     
+WinRM               Stopped Manual   
+Spooler             Running Auto     
+SomeOther           n/a     n/a      
+```

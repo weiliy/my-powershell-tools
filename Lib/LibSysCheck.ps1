@@ -1,7 +1,7 @@
 ﻿# System Check Functions
 
 # Get install softwares status
-Function Get-WinSoftwareInstallation {
+Function Get-WinSoftwareStatus {
     [CmdletBinding()]
     Param(
         [parameter(Mandatory=$true,
@@ -11,54 +11,60 @@ Function Get-WinSoftwareInstallation {
     )
     Begin {
         Write-Verbose "Reading registry HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall"
-
-        # $WmiWin32Product = Get-WmiObject Win32_Product
-        $InstalledSoftwares = @()
+        $InstalledSoftwares = Get-ItemProperty HKLM:\Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\* `
+        | Select-Object @{Name="Name"; Expression = {$_.DisplayName}},@{Name="Version";Expression={$_.DisplayVersion}},Publisher
         $Softwares = @()
-
-        #Define the variable to hold the location of Currently Installed Programs
-        $UninstallKey="SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall"
-
-        #Create an instance of the Registry Object and open the HKLM base key
-        $reg=[microsoft.win32.registrykey]::OpenRemoteBaseKey('LocalMachine',$computername)
-
-        #Drill down into the Uninstall key using the OpenSubKey Method
-        $regkey=$reg.OpenSubKey($UninstallKey)
-
-        #Retrieve an array of string that contain all the subkey name
-        $subkeys=$regkey.GetSubKeyNames()
-
-        #Open each Subkey and use GetValue Method to return the required values for each
-        foreach($key in $subkeys){
-            $thisKey=$UninstallKey+"\\"+$key
-            $thisSubKey=$reg.OpenSubKey($thisKey)
-
-            $obj = New-Object PSObject -Property @{
-                Name = $($thisSubKey.GetValue("DisplayName"));
-                Version = $($thisSubKey.GetValue("DisplayVersion"));
-                Publisher = $($thisSubKey.GetValue("Publisher"))
-            }
-
-            $InstalledSoftwares += $obj
-        }
     }
     Process {
         foreach ( $Name in $Names ) {
-            Write-Debug "Checking $Parttern"
+            Write-Debug "Checking $Name"
             $Matchs = $InstalledSoftwares | Where-Object { $_.Name -like $Name}
             If ( ($Matchs | Measure-Object -Property Name ).Count -eq 0 ) {
                 $Softwares += New-Object PSObject -Property @{
                     Name = "$Name";
                     Version = "n/a";
                     Publisher = "n/a";
-                    InstallStatus = "Not Installed"
+                    Status = "Not Install"
                 }
             } else {
-                $Softwares += $Matchs | Add-Member NoteProperty InstallStatus 'Installed' -PassThru
+                $Softwares += $Matchs | Add-Member NoteProperty Status "Installed" -PassThru
             }
         }
     }
     End {
-        $Softwares | Select Name,Version,Publisher,InstallStatus
+        $Softwares | Select Name,Version,Publisher,Status
+    }
+}
+
+Function Get-WinServiceStatus {
+    [CmdletBinding()]
+    Param(
+        [parameter(Mandatory=$true,
+        ValueFromPipeline=$true)]
+        [string[]]
+        $Names
+    )
+    Begin {
+        Write-Verbose "Get Win32_Service"
+        $AllServers = Get-WmiObject -Class Win32_Service
+        $ServcieStatus = @()
+    }
+    Process {
+        foreach ( $Name in $Names ) {
+            Write-Verbose "Check $Name"
+            $Matchs = $AllServers | Where-Object { $_.Name -like $Name }
+            If (($Matchs | Measure-Object -Property Name).Count -eq 0) {
+                $ServcieStatus += New-Object PSObject -Property @{
+                    Name = "$Name";
+                    State = "n/a";
+                    StartMode = "n/a";
+                }
+            } else {
+                $ServcieStatus += $Matchs | Select Name,State,StartMode
+            }
+        }
+    }
+    End {
+        $ServcieStatus | Select Name,State,StartMode
     }
 }
