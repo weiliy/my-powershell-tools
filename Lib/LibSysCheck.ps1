@@ -72,3 +72,14 @@ Function Get-WinServiceStatus {
         $ServcieStatus | Select Name,State,StartMode
     }
 }
+
+# Get OS Arch
+
+Function Test-IsVM {
+    $SystemModel = (Get-WmiObject win32_ComputerSystem).Model
+    If ($SystemModel -match "Virtual|VMWare") {
+        return $true
+    } else {
+        return $false
+    }
+}
