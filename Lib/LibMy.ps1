@@ -4,7 +4,10 @@ Function Out-MyLog {
     .SYNOPSIS
            Write Log to file and screen
     #>
-    Param([string]$LogFileName = '')
+    Param(
+        [string]$LogFileName = 'MyLog.log',
+        [switch]$QuickSync
+    )
     Begin{
         If ( $LogFileName -ne '' ) {
             $UtcTime = (Get-Date).ToUniversalTime() | Get-Date -UFormat '%Y-%m-%d %H:%M (UTC)'
@@ -20,6 +23,17 @@ Function Out-MyLog {
         If ( $Script:MyLogBuffer -eq $null ) {
             $Script:MyLogBuffer = @()
         }
+
+        Function Sync-MyLog {
+            try {
+                $Script:MyLogBuffer | Add-Content $Script:MyLogFileName
+            } catch {
+                "Cannot write log into $MyLogFileName"
+                Read-Host "Press Enter to exit"
+                Exit
+            } 
+            $Script:MyLogBuffer = $null
+        }
     }
     Process {
         $UtcTime = (Get-Date).ToUniversalTime() | Get-Date -UFormat '%Y-%m-%d %H:%M:%S'
@@ -30,16 +44,13 @@ Function Out-MyLog {
             Write-Output $LogMsg
             $Script:MyLogBuffer += $LogMsg
         }
+        If ( $QuickSync.IsPresent ) {
+            Sync-MyLog
+        }
     }
     End {
-        
-        try {
-            $Script:MyLogBuffer | Add-Content $Script:MyLogFileName
-        } catch {
-            "Cannot write log into $MyLogFileName"
-            Read-Host "Press Enter to exit"
-            Exit
-        } 
-        $Script:MyLogBuffer = $null
+        If ( -not $QuickSync.IsPresent ) {
+            Sync-MyLog
+        }
     }
 }
