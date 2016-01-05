@@ -32,7 +32,7 @@ Function Out-MyLog {
                 Read-Host "Press Enter to exit"
                 Exit
             } 
-            $Script:MyLogBuffer = $null
+            $Script:MyLogBuffer = @()
         }
     }
     Process {
