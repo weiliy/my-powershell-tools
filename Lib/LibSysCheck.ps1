@@ -11,7 +11,9 @@ Function Get-WinSoftwareStatus {
     )
     Begin {
         Write-Verbose "Reading registry HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall"
-        $WmiWin32Product = Get-WmiObject Win32_Product | Select-Object Name,Version,@{Name='Publisher';Expression={$_.Vendor}}
+        if ( -not $WmiWin32Product ) {
+            $Script:WmiWin32Product = Get-WmiObject Win32_Product | Select-Object Name,Version,@{Name='Publisher';Expression={$_.Vendor}}
+        }
         $HklmSoftwares = Get-ItemProperty HKLM:\Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\* `
         | Select-Object @{Name="Name"; Expression = {$_.DisplayName}},@{Name="Version";Expression={$_.DisplayVersion}},Publisher
         $Softwares = @()
